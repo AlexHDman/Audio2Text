@@ -1,20 +1,19 @@
 # EXPC CHECKPOINT — Audio2Text
 
-Updated: 2026-10-13. Stage: **Stabilization / Git Baseline**. Development: **PAUSED** after baseline fixation; interface development paused.
-Mode: RELEASE GATE + GIT, HEADLESS/BACKGROUND. Agent: Codex Desktop Local, current model, effort HIGH.
-Root: C:/AI/Audio2Text. Selected version: **v2.0.5 nightly source baseline**; backend **v1.5.7 FROZEN**. v2.0.6 is not accepted or promoted.
+Updated: 2026-10-13. Stage: **Release Baseline**. Development: **PAUSED**, including interface work.
+Mode: RELEASE / GIT ONLY, HEADLESS/BACKGROUND. Agent: Codex Desktop Local, current model, effort HIGH.
+Root: C:/AI/Audio2Text. Selected version: **v2.0.5 nightly source baseline**; backend **v1.5.7 FROZEN**. v2.0.6 is not accepted or published.
 
-Git branch: `release/v2.0.5-baseline`. Baseline identity is the enclosing commit (resolve with `git rev-parse HEAD`); no self-referential commit hash is embedded. No remote configured or confirmed. Push blocked pending exact user-owned GitHub URL. No tag/release.
+Branch: `release/v2.0.5-baseline`. Current documentation identity is the enclosing commit (`git rev-parse HEAD`). Confirmed public origin: https://github.com/AlexHDman/Audio2Text.git. Sanitized root `72aee752e6d10f2e2cea0c65fb2b3731084c6280` has been pushed and verified through GitHub. Original baseline remains on local-only `local/private-v205-baseline`; never publish that ref. No tag/release.
 
-- No active benchmark/validation process found before work; nothing interrupted.
-- Existing v2.0.5 EXE SHA256 verified: `0c873d19a1edd4b4c4262e3d9848cdb2972710b03924c4f82d416df7bf619a65`; artifact remains local at artifacts/v2.0.5/Audio2Text.exe. No rebuild.
-- Included source matches 41 available v2.0.5 checkpoint entries. V205_SOURCE_SHA256.json records baseline source/assets/templates.
-- CLI TESTS: PARTIAL. Fresh included Python tests 155 PASS / 1 environment error (hardlink WinError 5; 156 executed). Rust 34 PASS / 1 intentionally ignored Explorer test; fmt PASS. OFFSCREEN QA and LIVE GUI GATE: NOT RUN.
-- Scope: source/config templates/necessary documentation. Models, vendor payload, venv, private media/output, cache, logs, binaries and v2.0.6 experiments are ignored and preserved locally.
-- v2.0.6 dynamic gate remains LOCAL-ONLY: tested guards, no safe complete NLLB A/B. Last forecast required 7225 MiB free; last recorded deficit 3272 MiB. These time-specific values are not current admission permission.
-- Old CUDA runs failed resource/quality gates (639–680 MiB recorded free; 1 generation vs CPU 109). No accepted speedup.
-- LID/NVML access recovered in the prior step without ACL/driver changes. No runtime/config/cache or UI changes in this task.
-- Baseline report: GIT_BASELINE_V205.md. Local evidence: dev/git_baseline_20261013. Previous checkpoint preserved in backups/v205_before_git_baseline_20261013.
-- Word Journal, settings and animation remarks retained in EXPC_BACKLOG.md; implementation deferred during PAUSED.
+- Public audit: sanitized all 93 original files; no tracked private media, credentials, environments, model/vendor payloads, caches or compiled artifacts found. Added three audit/license documents in the separate documentation commit (96 total files).
+- Bilingual README and publication allowlist prepared. LICENSE deliberately absent at the owner's request. Slint/model constraints and future binary-distribution gates recorded in DEPENDENCY_LICENSES.md.
+- Only source change for publication: synthetic fixture replaces private-media dependency in one Rust test. Production Rust behavior and all Python/backend files unchanged. Manifest updated for test-file hash; remaining 79 entries unchanged.
+- CLI TESTS: Rust 34 PASS / 1 ignored Explorer test; fmt and Clippy PASS, rustc hardlink-copy warnings. Latest same-source Python baseline: 155 PASS / 1 environment error, 156 executed; not rerun during publication. Full product validation remains PARTIAL.
+- OFFSCREEN QA: NOT RUN. LIVE GUI GATE: NOT RUN. No inference, application rebuild, runtime config/cache changes or package installs.
+- Frozen sources and production config hashes verified. Existing local EXE SHA256: `0c873d19a1edd4b4c4262e3d9848cdb2972710b03924c4f82d416df7bf619a65`; artifacts/v2.0.5/Audio2Text.exe remains outside Git.
+- Source assets/config templates are listed in V205_SOURCE_SHA256.json. Audit: PUBLIC_AUDIT_V205.md. Private evidence: dev/public_audit_20261013 and dev/git_baseline_20261013.
+- v2.0.6 experiments/results remain local-only; no accepted complete NLLB CUDA A/B or production CUDA switch. Prior memory forecasts are historical, not permission to run.
+- Word Journal, settings and animation remarks remain OPEN / deferred in EXPC_BACKLOG.md.
 
-NEXT: user confirms the exact existing GitHub repository URL; verify ownership/access before push. Development remains PAUSED. STOP.
+NEXT: preserve PAUSED; collect specific validation/UX evidence only on a new user task. No automatic implementation or release. STOP.

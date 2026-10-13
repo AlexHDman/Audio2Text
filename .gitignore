@@ -30,6 +30,9 @@
 !/docs/EXPC_BACKLOG.md
 !/docs/GIT_BASELINE_V205.md
 !/docs/V205_SOURCE_SHA256.json
+!/docs/DEPENDENCY_LICENSES.md
+!/docs/DEPENDENCY_LICENSES_WINDOWS.json
+!/docs/PUBLIC_AUDIT_V205.md
 !/frontend/
 /frontend/*
 !/frontend/Cargo.toml

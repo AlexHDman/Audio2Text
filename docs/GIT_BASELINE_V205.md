@@ -1,4 +1,6 @@
-# Git baseline — Audio2Text v2.0.5
+# Git baseline вЂ” Audio2Text v2.0.5
+
+Historical baseline report. For the subsequent public push and sanitation, see PUBLIC_AUDIT_V205.md and EXPC_CHECKPOINT.md. The 41-file comparison below predates the test-only paths.rs sanitation; the current source manifest records that change.
 
 Date: 2026-10-13. Stage: Stabilization / Git Baseline. Development: PAUSED after this baseline commit.
 
