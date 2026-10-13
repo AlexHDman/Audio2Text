@@ -1,0 +1,341 @@
+import { ScrollView } from "std-widgets.slint";
+import { Noir } from "themes/noir.slint";
+import { GlowButton, DepthPanel, Readout } from "components/controls.slint";
+import { LuminousIcon } from "components/icons.slint";
+import { LivingCheck, RailItem } from "components/living.slint";
+export struct CacheRow { name: string, detail: string, selected: bool, removable: bool }
+export struct StageRow { label: string, state: string, counter: string }
+export struct LanguageChoice { code: string, selected: bool }
+export struct EventRow { time: string, level: string, message: string }
+export component Dashboard inherits Window {
+    title: "Audio2Text CUDA PRO · v2.0.5";
+    icon: @image-url("../assets/brand/head.png");
+    preferred-width: 1512px; preferred-height: 900px;
+    min-width: 1440px; min-height: 860px;
+    default-font-family: "Segoe UI"; default-font-size: Noir.body;
+    background: Noir.night;
+    in property <string> filename: "Медиафайл не выбран";
+    in property <image> thumbnail;
+    in property <bool> has-thumbnail: false;
+    in property <bool> is-video: false;
+    in property <bool> media-pending: true;
+    in property <float> media-duration: -1;
+    in property <[LanguageChoice]> source-choices;
+    in property <[string]> selected-sources;
+    in-out property <string> target-language: "RU";
+    in-out property <bool> language-popup: false;
+    property <bool> target-popup: false;
+    callback toggle-language(string);
+    in property <string> fileinfo: "--";
+    in property <string> status: "Выберите медиафайл";
+    in property <string> stage: "Ожидание";
+    in property <string> counter: "--";
+    in property <string> progress-unit: "Прогресс текущего этапа";
+    in property <float> progress: 0;
+    in property <bool> known-progress: false;
+    in property <bool> busy: false;
+    in property <bool> can-start: false;
+    in property <bool> can-stop: false;
+    in property <bool> warning: false;
+    in property <bool> failure: false;
+    in property <string> elapsed: "--";
+    in property <string> eta: "--";
+    in property <string> gpu: "--";
+    in property <string> gpu-load: "--";
+    in property <string> cuda: "--";
+    in property <bool> cuda-active: false;
+    in property <string> vram: "--";
+    in property <string> voices: "--";
+    in property <string> segments: "--";
+    in property <string> groups: "--";
+    in property <string> languages: "--";
+    in property <string> current-voi: "--";
+    in property <string> current-language: "--";
+    in property <string> current-time: "--";
+    in property <string> preview: "";
+    in property <string> formats: "Результаты ещё не созданы";
+    in property <string> runtime-note: "Локально · данные остаются на компьютере";
+    in property <[StageRow]> stages;
+    in property <[EventRow]> events;
+    in property <float> motion: 0;
+    in property <float> breathe: 0.5;
+    in-out property <bool> settings-visible: false;
+    in-out property <bool> reduced: false;
+    in-out property <bool> auto-open: false;
+    in-out property <bool> cache-visible: false;
+    in-out property <bool> cache-working: false;
+    in property <bool> cache-has-selection: false;
+    in property <[CacheRow]> cache-rows;
+    in property <string> cache-summary;
+    in property <string> cache-message;
+    in property <string> cache-unknown;
+    in-out property <string> cache-exit-policy: "ask";
+    callback open-cache(); callback toggle-cache(int); callback select-completed(); callback delete-cache();
+    callback select-file(); callback start-job(); callback stop-job(); callback open-output(); callback save-settings();
+
+
+    property <string> focus-section: "processing";
+    property <bool> has-output: root.formats != "Результаты ещё не созданы";
+    // Stable centers are independent of marker drift; future travel is not implemented.
+    out property <length> transition-origin-x: process-core.absolute-position.x + 22px;
+    out property <length> transition-origin-y: process-core.absolute-position.y + 34px;
+    out property <length> progress-focus-x: energy.absolute-position.x + 1px + (energy.width - 2px) * min(1, max(0, root.progress));
+    out property <length> progress-focus-y: energy.absolute-position.y + 9px;
+    out property <length> stage-anchor-x: stages-panel.absolute-position.x + 32px;
+    out property <length> stage-anchor-y: stages-panel.absolute-position.y + 67px;
+    out property <length> stage-anchor-step: 30px;
+
+    Image { source: @image-url("../assets/world/forest.png"); image-fit: cover; }
+    Rectangle { background: @linear-gradient(90deg, #030c1920 0%, #02091310 50%, #02091318 100%); }
+    Rectangle { x: 180px; y: -90px; width: 600px; height: 310px;
+        background: @radial-gradient(circle, #197b9430 0%, #0d657000 70%);
+        opacity: root.reduced ? 0.35 : 0.3 + root.breathe * 0.1;
+    }
+    // Persistent brand rail, aligned to the canonical left column.
+    Rectangle { x: 0px; y: 0px; width: 210px; height: parent.height;
+        background: @linear-gradient(180deg, #030b1b65, #02111c20);
+        Rectangle { x: parent.width - 1px; width: 1px; height: parent.height; background: #57779830; }
+        VerticalLayout { padding: 18px; spacing: 10px;
+            Rectangle { height: 240px; background: transparent;
+                // Display crop of the approved original asset, never its obsolete 1.5.5 label.
+                Image { x: 10px; y: 0px; width: parent.width - 20px; height: 150px; source: @image-url("../../assets/logo.PNG"); source-clip-x: 170; source-clip-y: 225; source-clip-width: 790; source-clip-height: 615; image-fit: contain; }
+                Text { y: 154px; width: parent.width; height: 32px; text: "Audio2Text"; color: Noir.ink; font-size: 27px; font-weight: 600; horizontal-alignment: center; }
+                Text { y: 191px; width: parent.width; height: 22px; text: "CUDA PRO"; color: Noir.cyan; font-size: 14px; letter-spacing: 3px; horizontal-alignment: center; }
+                Text { y: 220px; width: parent.width; height: 16px; text: "2.0.4"; color: Noir.secondary; font-size: 11px; horizontal-alignment: center; }
+            }
+            RailItem { text: "Обработка"; icon: @image-url("../assets/icons/processing.svg"); selected: root.focus-section == "processing"; clicked => { root.focus-section = "processing"; } }
+            RailItem { text: "Файлы"; icon: @image-url("../assets/icons/files.svg"); enabled: !root.busy; clicked => { root.select-file(); } }
+            RailItem { text: "Результаты"; icon: @image-url("../assets/icons/saved.svg"); clicked => { root.open-output(); } }
+            RailItem { text: "Перевод"; icon: @image-url("../assets/icons/translation.svg"); selected: root.focus-section == "translation"; clicked => { root.focus-section = "translation"; } }
+            RailItem { text: "Диаризация"; icon: @image-url("../assets/icons/voices.svg"); selected: root.focus-section == "voices"; clicked => { root.focus-section = "voices"; } }
+            RailItem { text: "Настройки"; icon: @image-url("../assets/icons/settings.svg"); clicked => { root.settings-visible = true; } }
+            Rectangle { vertical-stretch: 1; background: transparent; }
+            Rectangle { height: 112px; background: transparent;
+                LuminousIcon { x: (parent.width - 36px) / 2; y: root.reduced ? 4px : 3px + root.breathe * 2px; width: 36px; height: 36px; source: @image-url("../assets/icons/cuda.svg"); accent: Noir.teal; active: root.cuda-active; }
+                Text { y: 51px; width: parent.width; height: 20px; text: "CUDA PRO"; color: Noir.teal; font-size: 15px; letter-spacing: 2px; horizontal-alignment: center; }
+                Text { y: 80px; width: parent.width; height: 16px; text: root.cuda; color: root.cuda-active ? Noir.green : Noir.secondary; font-size: 11px; horizontal-alignment: center; }
+            }
+        }
+    }
+    VerticalLayout { x: 210px; y: 0px; width: parent.width - 210px; height: parent.height; padding: 24px; spacing: 14px;
+        HorizontalLayout { height: 62px; spacing: 12px;
+            VerticalLayout { spacing: 4px; horizontal-stretch: 1;
+                Text { text: "Обработка медиафайла"; color: Noir.ink; font-size: 28px; font-weight: 600; }
+                Text { text: "Транскрипция, диаризация, перевод и экспорт с помощью ИИ"; color: Noir.secondary; font-size: 12px; }
+            }
+            GlowButton { text: "Выбрать файл"; has-icon: true; icon: @image-url("../assets/icons/add-file.svg"); width: 156px; height: 44px; primary: true; enabled: !root.busy; clicked => { root.select-file(); } }
+            GlowButton { text: "Кэш"; width: 112px; height: 44px; clicked => { root.open-cache(); } }
+            GlowButton { text: "Настройки"; has-icon: true; icon: @image-url("../assets/icons/settings.svg"); width: 122px; height: 44px; clicked => { root.settings-visible = true; } }
+        }
+        DepthPanel { height: 122px;
+            HorizontalLayout { padding: 14px; spacing: 18px;
+                HorizontalLayout { horizontal-stretch: 1; spacing: 16px;
+                    Rectangle { width: 154px; background: #06111b; border-radius: 8px;
+                        Image { x: 0px; y: 0px; width: parent.width; height: parent.height; visible: root.has-thumbnail; source: root.thumbnail; image-fit: contain; }
+                        if !root.has-thumbnail && !root.is-video: LuminousIcon { x: 51px; y: 20px; width: 52px; height: 52px; source: @image-url("../assets/icons/audio.svg"); plate: false; }
+                        if !root.has-thumbnail && root.is-video: Text { text: root.media-pending ? "Загрузка превью…" : "Превью недоступно"; color: Noir.secondary; font-size: 11px; horizontal-alignment: center; vertical-alignment: center; wrap: word-wrap; }
+                    }
+                    VerticalLayout { spacing: 10px; alignment: center; horizontal-stretch: 1;
+                        Text { text: root.filename; color: Noir.ink; font-size: 20px; font-weight: 600; overflow: elide; }
+                        Text { text: root.fileinfo; color: Noir.secondary; font-size: 14px; }
+                    }
+                }
+                Rectangle { width: 1px; background: #7999ba25; }
+                VerticalLayout { width: 286px; spacing: 6px; alignment: center;
+                    Text { text: "ЯЗЫКИ ИСХОДНИКА"; color: Noir.secondary; font-size: 11px; letter-spacing: 1px; }
+                    HorizontalLayout { height: 32px; spacing: 6px;
+                        if root.selected-sources.length == 0: GlowButton { text: "AUTO ▼"; width: 108px; enabled: !root.busy; clicked => { root.target-popup = false; root.language-popup = true; } }
+                        for code in root.selected-sources: GlowButton { text: code; width: 56px; primary: true; enabled: !root.busy; clicked => { root.target-popup = false; root.language-popup = true; } }
+                        GlowButton { text: "+"; width: 32px; enabled: !root.busy; clicked => { root.target-popup = false; root.language-popup = true; } }
+                        Rectangle { horizontal-stretch: 1; background: transparent; }
+                    }
+                    HorizontalLayout { height: 30px; spacing: 10px;
+                        Text { text: "ПЕРЕВЕСТИ НА"; color: Noir.secondary; font-size: 11px; vertical-alignment: center; }
+                        GlowButton { text: root.target-language + " ▼"; width: 72px; enabled: !root.busy; clicked => { root.target-popup = true; root.language-popup = true; } }
+                    }
+                }
+                GlowButton { text: "ВЫВОД"; has-icon: true; icon: @image-url("../assets/icons/output.svg"); width: 110px; height: 38px; clicked => { root.open-output(); } }
+            }
+        }
+        process-core := DepthPanel { height: 144px;
+            HorizontalLayout { padding: 22px; spacing: 26px;
+                VerticalLayout { horizontal-stretch: 1; spacing: 10px;
+                    HorizontalLayout { spacing: 10px;
+                        Text { text: root.stage; color: Noir.ink; font-size: 22px; font-weight: 500; overflow: elide; }
+                        Text { text: root.known-progress ? round(root.progress * 100) + "%" : "--"; color: root.warning ? Noir.amber : Noir.cyan; font-size: 30px; horizontal-alignment: right; }
+                    }
+                    energy := Rectangle { height: 18px; border-radius: 9px; background: #04122c88; border-width: 1px; border-color: #3477ccaa;
+                        Rectangle { x: 0px; y: -7px; width: parent.width * root.progress; height: 32px; border-radius: 16px; background: @linear-gradient(180deg, #2888ff00, #2888ff55, #2888ff00); visible: root.known-progress; }
+                        Rectangle { x: 1px; y: 2px; width: (parent.width - 2px) * root.progress; height: 14px; border-radius: 7px; visible: root.known-progress; background: @linear-gradient(90deg, #147af5, #27cbfa, #9cf8ff);
+                            Rectangle { x: 2px; y: 2px; width: max(0px, parent.width - 4px); height: 1px; background: #d9ffffbb; }
+                        }
+                        // True progress endpoint, no invented motion or module transfer.
+                        Rectangle { visible: root.known-progress; x: 1px + (parent.width - 2px) * min(1, max(0, root.progress)) - 14px; y: -5px; width: 28px; height: 28px; background: transparent;
+                            Rectangle { x: -13px; y: -13px; width: 54px; height: 54px; background: @radial-gradient(circle, #45dfff66, #347dff00 68%); opacity: root.reduced ? 0.7 : 0.6 + root.breathe * 0.25; }
+                            Rectangle { border-radius: 14px; border-width: 1px; border-color: #9af8ff; background: @radial-gradient(circle at 9px 8px, #edffff 0%, #4de0ff 18%, #156fd5 50%, #403990 75%, #052344 100%); }
+                            Rectangle { x: 6px; y: 4px; width: 8px; height: 5px; border-radius: 3px; background: #eaffff; opacity: 0.75; }
+                        }
+                    }
+                    HorizontalLayout { Text { text: root.progress-unit; color: Noir.secondary; font-size: 11px; overflow: elide; } Text { text: root.counter; color: Noir.cyan; font-size: 12px; horizontal-alignment: right; } }
+                }
+                Rectangle { width: 274px; border-radius: 10px; background: #07152324;
+                    HorizontalLayout { padding: 15px; spacing: 16px;
+                        VerticalLayout { alignment: center; spacing: 8px; Text { text: "Прошло времени"; color: Noir.secondary; font-size: 11px; } Text { text: root.elapsed; color: Noir.ink; font-size: 25px; } }
+                        Rectangle { width: 1px; background: #6b8fad40; }
+                        VerticalLayout { alignment: center; spacing: 8px; Text { text: "Осталось примерно"; color: Noir.secondary; font-size: 11px; } Text { text: root.eta; color: Noir.ink; font-size: 25px; } }
+                    }
+                }
+            }
+        }
+        DepthPanel { height: 88px; matte: 0.53;
+            HorizontalLayout { padding-left: 14px; padding-right: 14px; spacing: 14px;
+                Readout { width: 210px; label: "GPU"; icon: @image-url("../assets/icons/gpu.svg"); value: root.gpu; detail: "Загрузка устройства  " + root.gpu-load; }
+                Readout { width: 105px; label: "CUDA"; icon: @image-url("../assets/icons/cuda.svg"); value: root.cuda; detail: "Backend"; live: root.cuda-active; accent: root.cuda-active ? Noir.green : Noir.secondary; }
+                Readout { width: 142px; label: "VRAM"; icon: @image-url("../assets/icons/vram.svg"); value: root.vram; detail: "Использовано / всего"; }
+                Readout { width: 80px; label: "VOI"; icon: @image-url("../assets/icons/voices.svg"); value: root.voices; detail: "Голоса"; accent: root.focus-section == "voices" ? Noir.cyan : Noir.teal; }
+                Readout { width: 116px; label: "СЕГМЕНТЫ"; icon: @image-url("../assets/icons/segments.svg"); value: root.segments; detail: "Группы  " + root.groups; }
+                Readout { horizontal-stretch: 1; label: "ЯЗЫКИ"; icon: @image-url("../assets/icons/languages.svg"); value: root.languages; detail: "Обнаружены backend"; accent: Noir.violet; }
+                Readout { width: 82px; label: "RTF"; icon: @image-url("../assets/icons/speed.svg"); value: "--"; detail: "Нет данных"; }
+            }
+        }
+        lower := HorizontalLayout { vertical-stretch: 1; min-height: 330px; spacing: 14px;
+            stages-panel := DepthPanel { width: 306px; border-color: root.focus-section == "voices" ? #48d7ff88 : #7897b133;
+                VerticalLayout { padding: 18px; spacing: 0px;
+                    Text { text: "Этапы обработки"; color: Noir.ink; font-size: 15px; height: 34px; }
+                    for row[i] in root.stages: Rectangle { height: 30px; background: row.state == "active" ? @linear-gradient(90deg, #239dff0a, #239dff00) : transparent; border-radius: 5px;
+                        LivingCheck { x: 0px; y: 1px; state: row.state; phase: root.motion; index: i; reduced: root.reduced; }
+                        Text { x: 36px; width: parent.width - 80px; height: parent.height; text: row.label; color: row.state == "waiting" ? Noir.secondary : Noir.ink; font-size: 12px; vertical-alignment: center; overflow: elide; }
+                        Text { x: parent.width - 43px; width: 43px; height: parent.height; text: row.counter; color: Noir.secondary; font-size: 10px; horizontal-alignment: right; vertical-alignment: center; }
+                    }
+                    Rectangle { vertical-stretch: 1; background: transparent; }
+                }
+            }
+            DepthPanel { horizontal-stretch: 1; min-width: 350px; matte: 0.75; border-color: root.focus-section == "translation" ? #48d7ff88 : #7897b133;
+                VerticalLayout { padding: 20px; spacing: 14px;
+                    HorizontalLayout { height: 24px; Text { text: "Текущий фрагмент"; color: Noir.ink; font-size: 15px; } Text { text: root.current-time; color: Noir.secondary; font-size: 11px; horizontal-alignment: right; } }
+                    Rectangle { height: 28px; background: @linear-gradient(90deg, #1faec718, #4c74d818, #804acc10); border-radius: 12px;
+                        Rectangle { x: 0px; y: 13px; width: parent.width; height: 1px; background: @linear-gradient(90deg, #50c9bc33, #3897ff55, #286dff00); }
+                    }
+                    Rectangle { vertical-stretch: 1; background: transparent;
+                        Text { visible: root.preview != ""; text: root.preview; color: Noir.ink; font-size: 16px; wrap: word-wrap; overflow: elide; vertical-alignment: top; }
+                        if root.preview == "": VerticalLayout { alignment: center; spacing: 12px;
+                            Text { text: "Ожидание распознавания"; color: Noir.ink; font-size: 19px; font-weight: 500; wrap: word-wrap; }
+                            Text { text: "Текущий фрагмент появится здесь после получения первого сегмента."; color: Noir.secondary; font-size: 14px; wrap: word-wrap; }
+                        }
+                    }
+                    HorizontalLayout { height: 32px; spacing: 8px;
+                        Rectangle { width: 78px; border-radius: 8px; background: #0a1d3226; border-width: 1px; border-color: #42beee88;
+                            LuminousIcon { x: 7px; width: 16px; height: 16px; plate: false; source: @image-url("../assets/icons/voices.svg"); }
+                            Text { x: 27px; width: 46px; height: parent.height; text: root.current-voi; color: Noir.cyan; font-size: 12px; vertical-alignment: center; }
+                        }
+                        Rectangle { width: 58px; border-radius: 8px; background: #241c3526; border-width: 1px; border-color: #9980ee88;
+                            LuminousIcon { x: 6px; width: 16px; height: 16px; plate: false; accent: Noir.violet; source: @image-url("../assets/icons/languages.svg"); }
+                            Text { x: 28px; width: 25px; height: parent.height; text: root.current-language; color: Noir.violet; font-size: 12px; vertical-alignment: center; }
+                        }
+                        Rectangle { horizontal-stretch: 1; background: transparent; }
+                    }
+                    Text { text: root.busy ? "Текущий контекст обработки" : "Последний полученный фрагмент"; color: Noir.secondary; font-size: 10px; }
+                }
+            }
+            DepthPanel { width: 304px;
+                VerticalLayout { padding: 16px; spacing: 12px;
+                    HorizontalLayout { height: 22px; Text { text: "Журнал событий"; color: Noir.ink; font-size: 15px; } Text { text: "UTC"; color: Noir.secondary; font-size: 10px; horizontal-alignment: right; } }
+                    ScrollView { vertical-stretch: 1;
+                        VerticalLayout { spacing: 7px;
+                            for row[i] in root.events: Rectangle { min-height: 42px; background: @linear-gradient(90deg, #020b1655, #020b1630); border-radius: 4px;
+                                HorizontalLayout { spacing: 7px;
+                                    Text { width: 45px; text: row.time; color: Noir.secondary; font-size: 10px; vertical-alignment: top; }
+                                    LuminousIcon { width: 14px; height: 14px; plate: false;
+                                        source: row.level == "ERROR" ? @image-url("../assets/icons/error.svg") : row.level == "WARNING" ? @image-url("../assets/icons/warning.svg") : row.message == "Результаты сохранены" ? @image-url("../assets/icons/saved.svg") : @image-url("../assets/icons/info.svg");
+                                        accent: row.level == "ERROR" ? Noir.error : row.level == "WARNING" ? Noir.amber : row.message == "Результаты сохранены" ? Noir.green : Noir.teal;
+                                    }
+                                    Text { text: row.message; color: row.level == "ERROR" ? Noir.error : row.level == "WARNING" ? Noir.amber : Noir.secondary; font-size: 12px; wrap: word-wrap; overflow: elide; }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        DepthPanel { height: 56px;
+            HorizontalLayout { padding: 6px; spacing: 12px;
+                GlowButton { text: "Начать"; has-icon: true; icon: @image-url("../assets/icons/play.svg"); width: 146px; primary: true; enabled: root.can-start; clicked => { root.start-job(); } }
+                GlowButton { text: "Остановить"; has-icon: true; interrupt: true; icon: @image-url("../assets/icons/stop.svg"); width: 130px; enabled: root.can-stop; clicked => { root.stop-job(); } }
+                VerticalLayout { padding-left: 8px; spacing: 4px; alignment: center; horizontal-stretch: 1;
+                    Text { text: root.status; color: root.failure ? Noir.error : root.warning ? Noir.amber : root.cuda-active ? Noir.green : Noir.secondary; font-size: 12px; overflow: elide; }
+                    Text { text: root.formats; color: Noir.secondary; font-size: 10px; }
+                }
+                Text { text: root.runtime-note; color: Noir.secondary; font-size: 10px; vertical-alignment: center; }
+            }
+        }
+    }
+    if root.settings-visible: Rectangle { background: Noir.scrim; TouchArea { }
+        DepthPanel { width: 410px; height: 278px; x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2;
+            VerticalLayout { padding: 24px; spacing: 16px;
+                Text { text: "Настройки интерфейса"; font-size: 19px; color: Noir.ink; }
+                GlowButton { text: root.reduced ? "Анимация: уменьшенная" : "Анимация: обычная"; clicked => { root.reduced = !root.reduced; root.save-settings(); } }
+                GlowButton { text: root.auto-open ? "Открывать output: да" : "Открывать output: нет"; clicked => { root.auto-open = !root.auto-open; root.save-settings(); } }
+                Text { text: "Параметры отображения"; color: Noir.quiet; font-size: Noir.small; }
+                GlowButton { text: "Готово"; clicked => { root.settings-visible = false; } }
+            }
+        }
+    }
+    if root.language-popup: Rectangle { background: #01061140;
+        TouchArea { clicked => { root.language-popup = false; } }
+        DepthPanel { x: parent.width - 440px; y: 178px; width: 398px; height: root.target-popup ? 160px : 298px; matte: 0.98;
+            TouchArea { }
+            VerticalLayout { padding: 18px; spacing: 10px;
+                Text { text: root.target-popup ? "Перевести на" : "Языки исходника"; font-size: 18px; color: Noir.ink; }
+                if !root.target-popup: Text { text: "AUTO или от 1 до 3 языков"; font-size: 12px; color: Noir.secondary; }
+                if !root.target-popup: GlowButton { text: "AUTO"; primary: root.selected-sources.length == 0; height: 30px; clicked => { root.toggle-language("auto"); } }
+                if !root.target-popup: VerticalLayout { spacing: 6px;
+                    for row in [0, 1, 2]: HorizontalLayout { height: 32px; spacing: 6px;
+                        for col in [0, 1, 2]: GlowButton { text: root.source-choices[row * 3 + col].code; primary: root.source-choices[row * 3 + col].selected;
+                            enabled: root.source-choices[row * 3 + col].selected || root.selected-sources.length < 3;
+                            clicked => { root.toggle-language(root.source-choices[row * 3 + col].code); }
+                        }
+                    }
+                }
+                if root.target-popup: HorizontalLayout { height: 34px; spacing: 10px;
+                    for code in ["RU", "EN"]: GlowButton { text: code; primary: root.target-language == code; clicked => { root.target-language = code; root.language-popup = false; } }
+                }
+                GlowButton { text: "Готово"; height: 32px; clicked => { root.language-popup = false; } }
+            }
+        }
+    }
+
+
+    if root.cache-visible: Rectangle { background: Noir.scrim; TouchArea { }
+        DepthPanel { width: 920px; height: 580px; x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2; matte: 0.98;
+            VerticalLayout { padding: 24px; spacing: 12px;
+                Text { text: "КЭШ ПРОЕКТОВ"; font-size: 21px; color: Noir.ink; }
+                Text { text: root.cache-summary; color: Noir.secondary; font-size: 14px; }
+                ScrollView { vertical-stretch: 1;
+                    VerticalLayout { spacing: 8px;
+                        for row[index] in root.cache-rows: Rectangle { height: 78px; border-radius: 8px; background: row.selected ? #239dff28 : #101b2ccc;
+                            HorizontalLayout { padding: 12px; spacing: 14px;
+                                LivingCheck { state: row.selected ? "completed" : "waiting"; reduced: true; }
+                                VerticalLayout { spacing: 5px;
+                                    Text { text: row.name; color: Noir.ink; font-size: 16px; overflow: elide; }
+                                    Text { text: row.detail; color: Noir.secondary; font-size: 11px; overflow: elide; }
+                                }
+                            }
+                            accessible-role: checkbox; accessible-label: row.name; accessible-enabled: row.removable && !root.cache-working;
+                            accessible-action-default => { if row.removable && !root.cache-working { root.toggle-cache(index); } }
+                            TouchArea { enabled: row.removable && !root.cache-working; clicked => { root.toggle-cache(index); } }
+                        }
+                    }
+                }
+                Text { text: root.cache-unknown; color: Noir.amber; font-size: 12px; wrap: word-wrap; }
+                Text { text: root.cache-message; color: Noir.secondary; font-size: 13px; wrap: word-wrap; }
+                if root.busy: Text { text: "Во время обработки очистка недоступна."; color: Noir.amber; font-size: 12px; }
+                HorizontalLayout { spacing: 10px;
+                    GlowButton { text: "Выбрать все завершённые"; enabled: !root.cache-working; clicked => { root.select-completed(); } }
+                    GlowButton { text: "Очистить выбранное"; enabled: root.cache-has-selection && !root.cache-working && !root.busy; clicked => { root.delete-cache(); } }
+                    GlowButton { text: "Обновить"; enabled: !root.cache-working; clicked => { root.open-cache(); } }
+                    GlowButton { text: "Закрыть"; enabled: !root.cache-working; clicked => { root.cache-visible = false; } }
+                }
+            }
+        }
+    }
+}

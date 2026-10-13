@@ -1,0 +1,2 @@
+# Frozen Python is hash-verified at runtime. Preserve exact bytes on every OS.
+* -text

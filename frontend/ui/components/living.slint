@@ -1,0 +1,49 @@
+import { Noir } from "../themes/noir.slint";
+import { LuminousIcon } from "icons.slint";
+
+export component LivingCheck inherits Rectangle {
+    in property <string> state: "waiting";
+    in property <float> phase: 0;
+    in property <int> index: 0;
+    in property <bool> reduced: false;
+    property <bool> asleep: state == "waiting";
+    property <bool> active: state == "active";
+    property <bool> still: reduced || state == "failed";
+    property <float> wave: sin((phase * 720 + index * 43) * 1deg);
+    // The shared phase is eight seconds: four-second float, two-second breathing.
+    property <float> pulse: reduced ? 0.6 : (sin(phase * 1440 * 1deg) + 1) / 2;
+    property <length> size: asleep ? 25px : active ? 34px : 30px;
+    property <color> tone: state == "completed" ? #55f4bc : state == "warning" ? Noir.amber : state == "failed" ? Noir.error : active ? #9af8ff : #9aa9bc;
+    property <float> flare: 0;
+    changed state => { if state == "completed" && !reduced { flare = 1; } }
+    Timer { interval: 160ms; running: parent.flare > 0.99; triggered => { parent.flare = 0; } }
+    animate tone { duration: root.reduced ? 0ms : 600ms; }
+    animate flare { duration: root.reduced ? 0ms : 240ms; }
+    width: 28px; height: 28px; background: transparent;
+    // Motion affects the glyph only; row/anchor geometry never moves.
+    Rectangle { x: (parent.width - root.size) / 2; y: (parent.height - root.size) / 2 + (root.still ? 0px : root.wave * (root.asleep ? 0.35px : 2px)); width: root.size; height: root.size; background: transparent;
+        Image { x: 1px; y: 2px; width: parent.width; height: parent.height; source: @image-url("../../assets/icons/check-body.svg"); colorize: #010811; opacity: 0.9; }
+        Image { x: -7px; y: -7px; width: parent.width + 14px; height: parent.height + 14px; source: @image-url("../../assets/icons/check-halo.svg"); colorize: root.active ? #18dfff : root.tone; opacity: root.asleep ? 0.28 : root.active ? 0.45 + root.pulse * 0.55 : 0.7; }
+        Image { width: parent.width; height: parent.height; source: @image-url("../../assets/icons/check-body.svg"); colorize: root.tone; opacity: root.asleep ? 0.82 : 1; }
+        Image { width: parent.width; height: parent.height; source: @image-url("../../assets/icons/check-bevel.svg"); opacity: root.asleep ? 0.72 : 1; }
+        Image { width: parent.width; height: parent.height; source: @image-url("../../assets/icons/check-core.svg"); colorize: root.active ? #f3ffff : root.asleep ? #d2deee : #bcffe5; opacity: root.asleep ? 0.4 : root.active ? 0.35 + root.pulse * 0.65 : 0.85; }
+        Image { width: parent.width; height: parent.height; source: @image-url("../../assets/icons/check-body.svg"); colorize: #ddffff; opacity: root.flare * 0.4; }
+    }
+}
+
+export component RailItem inherits Rectangle {
+    in property <string> text;
+    in property <image> icon;
+    in property <bool> selected: false;
+    in property <bool> enabled: true;
+    callback clicked();
+    height: 48px; border-radius: 10px;
+    background: selected ? #239dff1f : hit.has-hover ? #408aba12 : transparent;
+    animate background { duration: 160ms; }
+    Rectangle { x: 0px; y: 8px; width: 3px; height: parent.height - 16px; border-radius: 2px; background: root.selected ? Noir.cyan : transparent; }
+    LuminousIcon { x: 14px; width: 28px; height: 28px; source: root.icon; plate: false; active: root.selected; hovered: hit.has-hover; enabled: root.enabled; }
+    Text { x: 54px; width: parent.width - 60px; height: parent.height; text: root.text; color: root.selected ? Noir.ink : Noir.secondary; font-size: 15px; vertical-alignment: center; }
+    accessible-role: button; accessible-label: text; accessible-enabled: enabled;
+    accessible-action-default => { if enabled { clicked(); } }
+    hit := TouchArea { enabled: root.enabled; mouse-cursor: pointer; clicked => { root.clicked(); } }
+}

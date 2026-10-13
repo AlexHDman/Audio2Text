@@ -1,0 +1,15 @@
+{
+  "INPUT": "input",
+  "OUTPUT": "output",
+  "TEMP": "temp/v157",
+  "WHISPER_MODEL": "large-v3",
+  "FORCE_LANGUAGE": null,
+  "AUTO_LANGUAGE": true,
+  "MIN_SPEAKERS": 1,
+  "MAX_SPEAKERS": null,
+  "DEVICE": "auto",
+  "TRANSLATION_DEVICE": "cpu",
+  "TRANSLATE_MODE": "auto",
+  "DICTIONARY_FILES": [],
+  "SPEAKER_ROLES": {}
+}
