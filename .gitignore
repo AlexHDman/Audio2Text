@@ -128,6 +128,9 @@ Thumbs.db
 !/scripts/test_public.py
 !/scripts/model_revisions.json
 !/scripts/download_models.py
+!/tests/fixtures/
+/tests/fixtures/*
+!/tests/fixtures/v155_core_before_ux.py
 **/build/
 **/dist/
 **/distr/

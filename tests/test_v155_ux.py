@@ -246,7 +246,7 @@ class UXTests(unittest.TestCase):
 
         old = ast.parse(
             (
-                p.ROOT / "backups/v155_before_ux/audio_pipeline_cuda_v155_FIXED.py"
+                Path(__file__).parent / "fixtures/v155_core_before_ux.py"
             ).read_text("utf-8")
         )
         new = ast.parse(Path(p.__file__).read_text("utf-8"))
