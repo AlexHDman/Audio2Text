@@ -132,6 +132,8 @@ The public runner selects only synthetic publishable tests. Private v1.5.7
 media/resume fixtures and v2.0.6 performance experiments are deliberately absent;
 the historical 226-local-test count must not be claimed for this clone. Hardlink
 tests require normal filesystem permission; do not weaken tests or change ACLs.
+The pre-UX core preservation test uses the included AST-only historical fixture;
+it no longer requires a private backups directory.
 Rust's Explorer-opening test remains ignored. The existing development venv
 must exist before Rust path-discovery tests. No test above requires inference.
 `-Offline` works for the build helper only if Cargo dependencies are already cached.

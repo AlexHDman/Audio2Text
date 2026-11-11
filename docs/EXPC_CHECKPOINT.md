@@ -17,8 +17,14 @@ packages, media/results, resume caches and v2.0.6 experiments remain excluded.
 No project or external backup deletion/cleaning. Candidate quality/performance
 acceptance remains PARTIAL; this task changes no backend/UI algorithms.
 
-CLI checks: public Python 175 PASS; Rust 34 PASS / 1 GUI test ignored; fmt/Clippy
-PASS. Full clean-machine dependency provisioning and inference: NOT RUN.
+Published source commit: `6cb9fedc6c51353e06e9de8f2ea6f0a3ebab0a4a`; enclosing
+documentation commit records the final backup evidence. GitHub clone verification:
+111/111 files match SHA256, equal Git trees, public Python 175 PASS. A hidden
+private-backup dependency in one test was replaced by nine unchanged historical
+AST nodes in a public fixture; production code unchanged by that repair.
+CLI checks: Rust 34 PASS / 1 GUI test ignored; fmt/Clippy PASS. Clone Rust check
+PASS using shared host Cargo cache. Python clone tests use existing dependencies.
+Full clean-machine dependency provisioning and inference: NOT RUN.
 OFFSCREEN QA / LIVE GUI GATE: NOT RUN. Final publication/clone evidence is recorded
 in GITHUB_BACKUP_AUDIT.md and the GitHub branch history. Preserve all open findings.
 

@@ -31,7 +31,7 @@ Source PNG/ICO/SVG artwork remains necessary for rebuilding the unchanged UI.
 
 - Public Python suite: **175 PASS** (existing environment, no inference).
 - Rust: **34 PASS / 1 ignored**; fmt and Clippy **PASS**.
-- Publication tree: **110 files**, approximately **5.13 MiB**, including required
+- Publication tree: **111 files**, approximately **5.15 MiB**, including required
   source artwork. **62 protected baseline hashes match** (frozen backend and UI).
   Both reachable pre-existing public commits were scanned. No findings for the
   inspected credential/private-path patterns or forbidden payloads. The original
@@ -61,5 +61,31 @@ BE-001 semantic review and +23.78% runtime cost remain open.
 
 ## Remote verification
 
-Pending the authorized push and independent fresh-clone comparison. The final
-verification entry will identify the source commit and exact scope tested.
+- Initial source commit `c3e99bd02bb78bde846f0d200a92cf1743452115` pushed and
+  retrieved via an independent GitHub clone; all initial 110 blobs matched.
+  GitHub connector also fetched RESTORE_FROM_GITHUB.md at that immutable SHA.
+- Clone testing exposed a hidden dependency on a private pre-UX backup file:
+  174 tests passed, one errored. It was not counted as a successful recovery.
+- Commit `6cb9fedc6c51353e06e9de8f2ea6f0a3ebab0a4a` added a minimal AST-only
+  historical fixture and changed the test's lookup path. All nine original AST
+  nodes match the actual historical source; no preservation assertion was removed.
+  The full original backup file and production backend remain untouched.
+- That commit was pushed, downloaded through a fast-forward update of the fresh
+  clone, and checked: **111/111 SHA256 matches**, identical Git trees, clean
+  tracked worktrees; **175 Python tests PASS** (13.696 s).
+- Rust source from the GitHub clone: `build_frontend.ps1 -CheckOnly -Offline`
+  **PASS**. This is `cargo check`, not a release EXE build. The existing host
+  Cargo registry/build cache was reused. The 34/1 Rust tests and fmt/Clippy
+  were run in the original checkout against the same unchanged Rust source.
+- Clone tests used the existing host Python environment and a copy of local
+  vendored langid in the clone's ignored vendor directory. No models or private
+  fixtures were copied. This does not demonstrate fresh dependency installation.
+- Stable remote `release/v2.0.5-baseline` remained at `703dd5b...`.
+  No main, private-history ref, release, tag, force push or merge was published.
+- The enclosing final documentation commit records this evidence; its identity
+  is available through Git history. Final push/ref and documentation blob equality
+  are rechecked after it, without repeating unchanged inference-free code tests.
+
+**SOURCE BACKUP: PASS. FRESH-MACHINE RUNTIME RESTORE: PARTIAL / NOT RUN.**
+DEVELOPMENT: PAUSED. Local evidence is retained under the ignored
+`dev/github_backup_20261112` directory. No project or backup cleanup was performed.

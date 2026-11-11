@@ -4,12 +4,16 @@ Updated: 2026-11-12. Stage: Source Backup / Backend Quality validation. Developm
 
 ## GitHub backup — 2026-11-12
 
-Source backup is authorized only for `feature/backend-quality`; stable v2.0.5
-stays unchanged. DEVELOPMENT: PAUSED after backup. Restore recipe, observed
+Source backup published and clone-verified on `feature/backend-quality`; stable
+v2.0.5 stays unchanged. DEVELOPMENT: PAUSED after backup. Restore recipe, observed
 dependency pins and safe build/test helpers added. Fresh-machine installation,
 authorized real inference, semantic review and performance acceptance remain OPEN.
 Private media fixtures and v2.0.6 experiments remain local-only. No release or
 portable publication. See GITHUB_BACKUP_AUDIT.md for publication verification.
+111 source files match the GitHub clone; public Python 175 PASS and Rust check
+PASS. One previously hidden test-only backup dependency is now an included
+AST-preserving fixture. Existing runtime/Cargo dependencies were reused, so this
+is source-recovery PASS and fresh-machine runtime recovery remains NOT RUN.
 Earlier statements withholding commit/push authorization describe prior tasks;
 the user's current GitHub-backup task explicitly authorizes this branch's backup.
 
