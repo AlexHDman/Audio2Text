@@ -108,3 +108,26 @@
 *.key
 desktop.ini
 Thumbs.db
+
+# Local BE-001 candidate sources and reports (no private evidence)
+!/backend_quality.py
+!/dictionaries/protected_terms.json
+!/tests/test_backend_quality.py
+!/docs/BACKEND_QUALITY_AUDIT.md
+!/docs/BACKEND_QUALITY_VALIDATION.md
+!/docs/BACKEND_QUALITY_BEFORE_AFTER.md
+
+# Source recovery instructions and audited, payload-free tooling
+!/docs/RESTORE_FROM_GITHUB.md
+!/docs/GITHUB_BACKUP_AUDIT.md
+!/requirements-runtime-win-py312.txt
+!/requirements-torch-cu128.txt
+!/scripts/
+/scripts/*
+!/scripts/build_frontend.ps1
+!/scripts/test_public.py
+!/scripts/model_revisions.json
+!/scripts/download_models.py
+**/build/
+**/dist/
+**/distr/

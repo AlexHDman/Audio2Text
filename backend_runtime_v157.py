@@ -36,6 +36,8 @@ def selected_channel_needs_review(group, segments, target):
         "mixed_script_review",
         "audio_text_language_disagreement",
         "missing_word_alignment_context_may_repeat",
+        "asr_context_recovered_review",
+        "sparse_speech_unresolved",
     }
     members = [segments[sid] for sid in group.get("member_ids", [])] or [group]
     if any(
@@ -95,7 +97,9 @@ def load_config(api, paths, filename=None):
     for key in ("WHISPER_PATH", "TRANSLATOR_PATH", "DIARIZATION_PATH"):
         if config[key] and not Path(config[key]).is_absolute():
             config[key] = str(paths.resolve(config[key]))
-    return api.validate_config(config)
+    from backend_quality import configure
+
+    return configure(api.validate_config(config), paths.code)
 
 
 class Observer:
@@ -242,7 +246,15 @@ class Observer:
         import translation_v156 as mt
         from language_control_v204 import install
 
+        quality_enabled = bool(self.config.get("BACKEND_QUALITY"))
+        if quality_enabled:
+            # A missing CLI target must not silently request two output languages.
+            self.config.setdefault("TARGET_LANGUAGE", "ru")
         install(self)
+        if quality_enabled:
+            from backend_quality import install as install_quality
+
+            install_quality(self)
         if self.config.get("TARGET_LANGUAGE"):
             self.hook(
                 p,

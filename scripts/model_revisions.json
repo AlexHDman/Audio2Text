@@ -1,0 +1,30 @@
+[
+  {
+    "repo_id": "Systran/faster-whisper-large-v3",
+    "revision": "edaa852ec7e145841d8ffdb056a99866b5f0a478"
+  },
+  {
+    "repo_id": "facebook/nllb-200-distilled-600M",
+    "revision": "f8d333a098d19b4fd9a8b18f94170487ad3f821d"
+  },
+  {
+    "repo_id": "pyannote/speaker-diarization-3.1",
+    "revision": "84fd25912480287da0247647c3d2b4853cb3ee5d"
+  },
+  {
+    "repo_id": "pyannote/segmentation-3.0",
+    "revision": "e66f3d3b9eb0873085418a7b813d3b369bf160bb"
+  },
+  {
+    "repo_id": "pyannote/wespeaker-voxceleb-resnet34-LM",
+    "revision": "837717ddb9ff5507820346191109dc79c958d614"
+  },
+  {
+    "repo_id": "pyannote/speaker-diarization-community-1",
+    "revision": "3533c8cf8e369892e6b79ff1bf80f7b0286a54ee",
+    "allow_patterns": [
+      "plda/plda.npz",
+      "plda/xvec_transform.npz"
+    ]
+  }
+]

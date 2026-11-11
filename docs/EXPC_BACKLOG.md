@@ -1,3 +1,36 @@
+# EXPC BACKLOG — Audio2Text
+
+Updated: 2026-11-12. Stage: Source Backup / Backend Quality validation. Development: **PAUSED**. Candidate branch `feature/backend-quality`; identity is the enclosing commit. Stable baseline `703dd5b52af8599a9fa17716ffee27967b424401` remains unchanged. GUI remains frozen.
+
+## GitHub backup — 2026-11-12
+
+Source backup is authorized only for `feature/backend-quality`; stable v2.0.5
+stays unchanged. DEVELOPMENT: PAUSED after backup. Restore recipe, observed
+dependency pins and safe build/test helpers added. Fresh-machine installation,
+authorized real inference, semantic review and performance acceptance remain OPEN.
+Private media fixtures and v2.0.6 experiments remain local-only. No release or
+portable publication. See GITHUB_BACKUP_AUDIT.md for publication verification.
+Earlier statements withholding commit/push authorization describe prior tasks;
+the user's current GitHub-backup task explicitly authorizes this branch's backup.
+
+## A2T-BE-001 — current findings
+
+| ID | Priority | Observed / expected | State and evidence |
+|---|---|---|---|
+| BE-001-ASR | P1 | Long speech units collapsed to credit-like text; expected substantive speech coverage | FIXED CANDIDATE / HUMAN REVIEW OPEN: three actual waveform units recovered, primary evidence retained; 508→640 words across film; no certified audio reference |
+| BE-001-LID | P1 | RU with GMP/FDA incorrectly MIXED; expected RU without masking actual code-switches | VERIFIED in control and fixtures: MIXED/unsupported 2→0; final full AUTO audio route not rerun from scratch |
+| BE-001-TERMS | P1 | FOHOW variants and short slogans mistranslated | VERIFIED within bounded control/phrase checks: known distortions 12→0, external context-aware glossary; original text and model response retained; names not auto-corrected |
+| BE-001-EMPTY | P2 | Empty ASR tail reported translation failed | FIXED / TESTED: translation skipped with explicit empty-source warning; underlying empty ASR remains visible |
+| BE-001-REVIEW | P1 | Semantic certification absent despite technical completion | OPEN: selected needs_review 26→27, journal blocks 4→7; new recovered speech requires review; false MIXED flags removed without hiding genuine issues |
+| BE-001-PERF | P1 | Expected no substantial slowdown | NOT MET: paired CPU ASR+NLLB 494.737→612.392 s (+23.78%); one pair, fixed diarization/LID. Decide acceptance or authorize a separate bounded optimization task |
+| BE-001-MULTI | P1 | Preserve AF/EN/NL/ZH scenarios | VERIFIED translation/fixtures: identical real CPU NLLB output/status on four synthetic controls; new multilingual audio acceptance NOT RUN |
+| BE-001-CACHE | P1 | Candidate policy/dictionary must not reuse incompatible results | VERIFIED: hash invalidation and zero-inference resume; original working cache retained |
+| BE-001-QA | P2 | Headless regression and preservation | 226 Python PASS; Rust 34 PASS/1 ignored; fmt/Clippy/AST/tabnanny PASS; 106 protected hashes and baseline EXE unchanged |
+
+Evidence and acceptance boundaries: `BACKEND_QUALITY_VALIDATION.md`, `BACKEND_QUALITY_BEFORE_AFTER.md`; private raw artifacts under ignored `dev/backend_quality_20261111`. NEXT: human listening review, then a separate decision on measured processing cost. No new phase, commit, push or release is authorized.
+
+## Preserved earlier backlog — historical status unless superseded above
+
 # EXPC BACKLOG вЂ” Audio2Text
 
 Updated 2026-10-13. Release Baseline. Development: **PAUSED**, including interface work. Selected baseline v2.0.5 nightly, backend v1.5.7 frozen; v2.0.6 remains local-only. Branch release/v2.0.5-baseline; enclosing commit is the baseline identity.

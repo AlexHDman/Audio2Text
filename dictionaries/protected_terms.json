@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "context_words": ["корпорац", "компани", "продукц", "концепц", "философ", "corporation", "company", "fohow", "фохоу", "фухоу"],
+  "terms": [
+    {"canonical": "FOHOW", "aliases": ["FOHOU", "FOCHOU", "FOCHAU", "FHOC", "ФОХОУ", "ФОХО", "ФУХОУ", "ФО ХОУ"], "context_required": true},
+    {"canonical": "FENDOU", "aliases": ["ФЕНДОУ", "ФЭНДОУ", "ФЕНТОУ"], "context_required": true},
+    {"canonical": "Yangsheng", "aliases": ["Яншэн", "Yangshen"], "context_required": true},
+    {"canonical": "GMP", "aliases": [], "context_required": false},
+    {"canonical": "FDA", "aliases": [], "context_required": false},
+    {"canonical": "NLLB", "aliases": [], "context_required": false}
+  ],
+  "exact_phrases": [
+    {"source": "ru", "target": "en", "text": "Одна мечта", "translation": "One dream."},
+    {"source": "ru", "target": "en", "text": "Продолжение следует", "translation": "To be continued."}
+  ]
+}

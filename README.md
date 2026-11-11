@@ -1,4 +1,26 @@
-# Audio2Text — v2.0.5 source baseline
+# Audio2Text CUDA PRO — backend-quality source backup
+
+**2026-11-12 · feature/backend-quality · DEVELOPMENT: PAUSED · candidate validation: PARTIAL**
+
+Эта ветка сохраняет BE-001: восстановление неполных ASR-фрагментов, маршрутизацию
+языков, защищённую терминологию и исправления NLLB в адаптере. Замороженные ядро
+v1.5.7 и интерфейс v2.0.5 не изменены. Семантическая проверка открыта; измеренное
+замедление +23.78% не принято. Это резервная копия исходников, не новый release.
+
+This branch backs up the BE-001 candidate and its tests. Frozen core/UI remain
+unchanged. Meaning review and the measured +23.78% processing cost remain open;
+source publication is not product acceptance. Stable baseline remains on
+`release/v2.0.5-baseline` at `703dd5b52af8599a9fa17716ffee27967b424401`.
+
+[Restore from GitHub / Восстановление](docs/RESTORE_FROM_GITHUB.md) ·
+[Backup audit / Проверка](docs/GITHUB_BACKUP_AUDIT.md) ·
+[Candidate validation](docs/BACKEND_QUALITY_VALIDATION.md)
+
+The baseline inventory and test results below are **historical**. Current backup
+checks are recorded in the audit linked above. Portable packages and model weights
+are local-only; no own-code LICENSE has been selected.
+
+## Preserved v2.0.5 baseline documentation
 
 **Release Baseline · DEVELOPMENT: PAUSED · validation: PARTIAL**
 
